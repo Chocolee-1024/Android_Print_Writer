@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
             //------------要寫的文字檔的try...catch------------
             try {
-                fos = openFileOutput("demo2.txt", Context.MODE_PRIVATE);
+                fos = new FileOutputStream(file, true);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -101,14 +101,21 @@ public class MainActivity extends AppCompatActivity {
 
             //建立writer
             writer = new BufferedWriter(new OutputStreamWriter(fos));
+
             //--------------寫檔的try...catch-------------
             try {
-                writer.append("asdadada");
+                writer.write("\n666666666\n");
                 writer.flush();
-                writer.close();
                 Log.e("note", "write" );
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            finally {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             //---------------------------------------------
         }
