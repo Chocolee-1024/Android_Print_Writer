@@ -5,9 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.app.admin.SystemUpdateInfo;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -31,18 +33,32 @@ public class MainActivity extends AppCompatActivity {
     private BufferedReader reader;
     private FileOutputStream fos;
     private static final int PERMISSION_REQUEST_CODE = 0;
-
+    //版本10以下只要使用這兩個權限就行
     private final String[] permission = new String[]{
+            Manifest.permission.READ_EXTERNAL_STORAGE,
             //允許應用程序寫入外部存儲
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+
+
+
+
     };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Android 版本11，拿不是本地端檔案的權限方法
+        if (Build.VERSION.SDK_INT >= 30){
+            if (!Environment.isExternalStorageManager()){
+                Intent getpermission = new Intent();
+                getpermission.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivity(getpermission);
+            }
+        }
         //呼叫要權限
         requestPermissions(permission);
+
     }
     //刪除檔案監聽
     public void deletClick(View view){
@@ -66,8 +82,10 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode==0) {
             Log.e("note", "拿取權限完成");
             //建立文字檔的目錄
-            String pathFile =Environment.getExternalStorageDirectory().getPath()+"/Documents/Demo/demo2.txt";
+
+
             //建立資料夾的目錄
+            String pathFile =Environment.getExternalStorageDirectory().getPath()+"/Documents/Demo/demo2.`t`xt";
             String pathDir =Environment.getExternalStorageDirectory().getPath()+"/Documents/Demo";
             //--------------建立的try...catch-----------
             try {
@@ -77,14 +95,14 @@ public class MainActivity extends AppCompatActivity {
                     Dir.mkdirs();
                     Log.e("note", "MakeDir" );
                 }
-                else Log.e("note", "ErrorDir" );
+                else Log.e("note", "existsDir" );
                 //建立文字檔
-                file = new File(pathFile);
+            file = new File(pathFile);
                 if (!file.exists()) {
                     file.createNewFile();
                     Log.e("note", "MakeFile" );
                 }
-                else Log.e("note", "ErrorFile" );
+                else Log.e("note", "existsFile" );
             } catch(Exception e){
                 Log.e("creating file Error", e.toString());
             }
@@ -95,17 +113,23 @@ public class MainActivity extends AppCompatActivity {
             try {
                 fos = new FileOutputStream(file, true);
             } catch (FileNotFoundException e) {
+                Log.e("TAG", "fos: "+e.getMessage() );
                 e.printStackTrace();
             }
             //---------------------------------------------
 
             //建立writer
-            writer = new BufferedWriter(new OutputStreamWriter(fos));
+            try {
+                writer = new BufferedWriter(new OutputStreamWriter(fos));
+            }catch (Exception e){
+                Log.e("TAG", "onRequestPermissionsResult: "+e.getMessage() );
+            }
+
 
             //--------------寫檔的try...catch-------------
             try {
-                writer.write("\n666666666\n");
-                writer.flush();
+                writer.write("\n嗨嗨嗨嗨\n");
+
                 Log.e("note", "write" );
             } catch (IOException e) {
                 e.printStackTrace();
